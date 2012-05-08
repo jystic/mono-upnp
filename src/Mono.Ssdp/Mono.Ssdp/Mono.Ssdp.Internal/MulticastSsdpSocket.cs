@@ -38,6 +38,7 @@ namespace Mono.Ssdp.Internal
             SetSocketOption (SocketOptionLevel.Socket, SocketOptionName.Broadcast, true);
             SetSocketOption (SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, Protocol.SocketTtl);
             SetSocketOption (SocketOptionLevel.IP, SocketOptionName.AddMembership, new MulticastOption (Protocol.IPAddress, networkInterfaceInfo.Index));
+            SetSocketOption (SocketOptionLevel.IP, SocketOptionName.MulticastInterface, IPAddress.HostToNetworkOrder (networkInterfaceInfo.Index));
         }
     }
 }

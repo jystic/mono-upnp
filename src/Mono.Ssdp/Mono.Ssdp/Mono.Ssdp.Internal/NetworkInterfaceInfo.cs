@@ -48,11 +48,15 @@ namespace Mono.Ssdp.Internal
                 return new NetworkInterfaceInfo (IPAddress.Any, 0);
             }
             var properties = networkInterface.GetIPProperties ();
-            var ipv4_properties = properties.GetIPv4Properties ();
-            if (ipv4_properties == null) {
-                throw new ArgumentException ("The specified network interface does not support IPv4.", "networkInterface");
+            int index = NetworkInterface.LoopbackInterfaceIndex;
+            if (networkInterface.NetworkInterfaceType != NetworkInterfaceType.Loopback) {
+                var ipv4_properties = properties.GetIPv4Properties ();
+                if (ipv4_properties == null) {
+                    throw new ArgumentException("The specified network interface does not support IPv4.", "networkInterface");
+                }
+                index = ipv4_properties.Index;
             }
-            var host_name = Dns.GetHostName ();
+            var host_name = Dns.GetHostEntry (Dns.GetHostName ()).HostName;
             foreach (var address in properties.UnicastAddresses) {
                 string addressHostname = null;
                 try {
@@ -60,7 +64,7 @@ namespace Mono.Ssdp.Internal
                 } catch (SocketException) {
                 }
                 if (address.Address.AddressFamily == AddressFamily.InterNetwork && addressHostname == host_name) {
-                    return new NetworkInterfaceInfo (address.Address, ipv4_properties.Index);
+                    return new NetworkInterfaceInfo (address.Address, index);
                 }
             }
             throw new ArgumentException (string.Format (
